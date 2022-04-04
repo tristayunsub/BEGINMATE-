@@ -4,6 +4,9 @@ https://www.dongyeon1201.kr/9026133b-31be-4b58-bcc7-49abbe893044
 jenkins를 이용한 devops 구축
 
 
+https://www.youtube.com/watch?v=joP1swoT5So
+aws 자동배포
+
 https://www.youtube.com/watch?v=3UaqJGXMp8w&ab_channel=JFrog
 far much advanced but difficult
 
