@@ -1,7 +1,15 @@
 jenkins command
 ===
+https://www.dongyeon1201.kr/9026133b-31be-4b58-bcc7-49abbe893044
+jenkins를 이용한 devops 구축
+
+
+https://www.youtube.com/watch?v=3UaqJGXMp8w&ab_channel=JFrog
+far much advanced but difficult
 
 https://www.youtube.com/watch?v=yl3a4jnf0jA&ab_channel=TechnicalCloudKnowledgezing 
+
+python example https://www.youtube.com/watch?v=-wiftS_-UyI&ab_channel=AkankshaSrivastava
 
 good example for analyzing jenkins
 
