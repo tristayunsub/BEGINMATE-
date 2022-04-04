@@ -1,6 +1,10 @@
 jenkins command
 ===
 
+https://www.youtube.com/watch?v=yl3a4jnf0jA&ab_channel=TechnicalCloudKnowledgezing 
+
+good example for analyzing jenkins
+
 
 https://waspro.tistory.com/554
 
