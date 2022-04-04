@@ -4,6 +4,14 @@ jenkins command
 
 https://waspro.tistory.com/554
 
+[VueJS] CI/CD 배포 프로세스 수립하기
+
+https://waspro.tistory.com/671?category=857042
+
+Kubernetes Jenkins - 자동 배포환경 구성 (1/2)
+
+https://waspro.tistory.com/573
+
 1. Jenkins 파이프라인 정의
 
 Jenkins 파이프라인은 여러 방식으로 구현이 가능합니다.
