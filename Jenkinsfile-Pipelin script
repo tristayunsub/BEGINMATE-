@@ -1,0 +1,188 @@
+pipelne {
+      // 스테이지 별로 다른거
+      
+      agent any
+      
+      triggers {
+             pollSCM('*/3****')
+}
+
+     environment {
+        AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
+        AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
+        AWS_DEFAUTL_REGION = 'ap-northeast-2'
+        HOME = '.' //Avoid npm root owned
+      }
+      
+      
+  stages //큰단계 {          
+  
+  
+     // prepare means = 레포지토리를 다운로드 받음
+     
+     stage('Prepare') {
+        agent any
+        
+        steps {
+         echo "Lets start Long Journey! ENV: ${ENV}"
+         echo 'Clonning Repository'
+         
+         git url: 'https://github.com/frontalnh/temp.git',
+                  branch: 'master',
+                  credentialsId: 'jenkinsgit'// script manager에 입력한 아이디 입력
+         }         
+         post { 
+               // If Maven was able to run the tests, even if some of the test
+               // failed, record the test result and archive the jar file.
+               
+               success{
+               echo 'Successfully Clonned Repository'
+               }
+               
+               always {
+               echo "i tried..." //if you failed but you tried
+               }
+               
+               cleanup { echo " after all other post condition"
+               }
+           }
+       }    
+     stage('Only for production') { //별로안중요함
+            when{
+                  branch 'production'
+                  environment name: 'APP_ENV', value: 'prod'
+                  anyOf {
+                       environment name: 'DEPLOY_TO', value: 'production'
+                       environment name: 'DEPLOY_TO', value: 'staging'
+                }
+              }
+         }
+      
+           }  
+      
+      // upload files to aws s3, like html file html만 할거기떄문에, s3에 버킷을 일단만듬
+     stage('Deploy Frontend') { 
+            steps {
+             echo 'Deploying Frontend'
+             //  upload static files in frontend dir to S3,
+            dir ('./website') {
+                sh '''
+                aws s3 sync ./ s3://s3 bucket name
+                '''
+           }   
+         }
+         
+         
+       post {  //메일로 성공여부 보냄
+            success{
+            
+            
+            echo 'Successfully Cloned Repository'
+             
+            mail to: 'frontalnh@gmail.com'
+                    subject: "Deploy Frontend Success",
+                    body: "Successfully Deployed frontend!"
+           }
+           
+           
+           failure {
+                echo 'I failed:'
+                
+                mail to: 'frontalnh@gmail.com'
+                    subject: "Failed Pipeline",
+                    body: "Something is wrong with deploy frontend"
+                    
+                }
+            }
+         }
+         
+         
+           
+     stage('Lint Backend') {
+           // should install Docker plugin and Docker Pipeline 
+         agent {
+            docker {   // receive docker to jenkins server and also do linting
+             image 'node: latest'
+        }      
+      }
+      steps { 
+          dir ('./server'){
+           sh '''
+           npm insall &&
+           npm run lint
+           '''
+          }
+        }
+      }
+      
+      
+     stage('Test Backend') {
+          agent {
+            docker {   // receive docker to jenkins server and also do linting
+             image 'node: latest'
+        }      
+      }
+      steps { 
+        echo ' Test Backend'
+        
+        dir ('./server') {
+           sh '''
+           npm install
+           npm run test
+           '''
+        }
+       }
+      }
+       
+      
+      
+     
+        }
+        
+     stage('Build Backend') { 도커를 통해 배포하기위해 도커빌드명령어사용, 도커를 젠킨스 노드에 깔아야 이걸 실행할텐데
+       agent any
+       steps {
+           echo 'Build Backend'
+           
+           dir ('./server') {
+           sh """
+           docker build. -t server --build-arg env=${PROD} // -t = tag server build-arg란? 젠킨스안에 변수하나로만 해서 어떤환경인지만 가르쳐주면 파라미터를 가져오는게 좋다
+           """
+         }
+       } 
+       
+       post {
+        failure {
+         error 'This pipeline stops here..'
+         }
+       }
+      }
+     
+        } 
+        
+     stage('Deploy Backend') {
+         agent any
+         
+         steps {
+           echo 'Build Backend'
+           
+           dir ('./server'){
+           sh '''
+           docker rm -f $(docker ps -aq) // shutdown docker
+           docker run -p 80:80 -d server 
+           '''
+           
+           post {
+            success {
+             mail to: 'frontalnh@gmail.com',
+             subject: "Deployment Success",
+             body: "Successfully deployed!"
+             
+           }
+         }
+       }
+    }
+ }  
+        
+        
+        
